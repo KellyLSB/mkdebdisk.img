@@ -23,7 +23,7 @@ __There are potentially more dependencies__
 
 ## Usage
 
-RPi2 Example File: link tba
+RPi2 Example File: http://github.com/KellyLSB/rpi2
 
 ## License
 
