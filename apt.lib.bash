@@ -102,7 +102,7 @@ function AptRepoSources() {
 
 	[[ -n "${APT_MIRRORS[@]}" ]] || return
 
-	if [[ "$1" != 'no-proxy' ]];
+	if [[ "$1" == 'no-proxy' ]];
 		then debRepo="http://"
 		else debRepo="http://${APT_PROXY}"
 	fi
@@ -125,7 +125,7 @@ function AptInstall() {
 	[[ -n "${packages}" ]] || return
 
 	Script "AptInstall" <<-EOF
-	export DFEBK="\$DEBIAN_FRONTEND"
+	export DFEBK="\\\$DEBIAN_FRONTEND"
 	export DEBIAN_FRONTEND="noninteractive"
 	apt-get update	${APT_ARGS[@]} $@
 	apt-get upgrade ${APT_ARGS[@]} $@
