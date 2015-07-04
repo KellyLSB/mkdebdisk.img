@@ -29,11 +29,11 @@ function SystemdRestartService() {
 }
 
 function SystemdEnableDaemons() {
-	Exec 'SystemdEnableDaemons' "rm -f ${CHROOT}/user/sbin/policy-rc.d"
+	Exec 'SystemdEnableDaemons' 'rm -f ${CHROOT}/user/sbin/policy-rc.d'
 }
 
 function SystemdDisableDaemons() {
-	File 'SystemdDisableDaemons' "${CHROOT}/usr/sbin/policy-rc.d" --mod 0666 <<-EOF
+	File 'SystemdDisableDaemons' '${CHROOT}/usr/sbin/policy-rc.d' --mod 0666 <<-EOF
 	#!/bin/sh
 	echo "All runlevel operations denied by policy" 1>&2
 	exit 101
@@ -41,7 +41,7 @@ function SystemdDisableDaemons() {
 }
 
 function SystemdFirstRun() {
-	File 'SystemdFirstRun' "${CHROOT}/var/lib/firstrun" --mod 'a+x'
+	File 'SystemdFirstRun' '${CHROOT}/var/lib/firstrun' --mod 'a+x'
 }
 
 function SystemdRootPassword() {
