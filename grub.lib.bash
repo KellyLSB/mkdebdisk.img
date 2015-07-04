@@ -26,3 +26,7 @@ function GrubSetEtcDefaultVar() {
 function GrubAppendEtcDefaultVar() {
   GrubSetEtcDefaultVar "$1" "\2 $2" "$3" "$2"
 }
+
+function GrubUpdate() {
+  Exec "GrubUpdate" "update-grub"
+}
