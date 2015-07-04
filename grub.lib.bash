@@ -1,29 +1,28 @@
 #!/bin/bash
 
-function __GrubEtcDefaultVar() {
-  sed -Ei "s/^($1)=\"(.+)\"\$/\1=\"$2\"/" "$3"
+function __GrubSetEtcDefaultVar() {
+	echo "sed -Ei 's/^($1)=\"(.+)\"\$/\1=\"$2\"/' '$3'"
 }
 
 function __GrubHasEtcDefaultVar() {
-  grep -Eq "^($1)=\"(.+)\"\$" "$2"
-}
-
-function GrubAppendEtcDefaultVar() {
-  local var="$(UtilToUpper "$1")" val="$2" file="/etc/default/grub"
-
-  if __GrubHasEtcDefaultVar "${var}" "${val}"; then
-    __GrubEtcDefaultVar "${var}" "\2 ${val}" "${file}"
-  else
-    echo "${var}=\"${val}\"" >> "${file}"
-  fi
+	echo "grep -Eq '^($1)=\"(.+)\"\$' '$2'"
 }
 
 function GrubSetEtcDefaultVar() {
-  local var="$(UtilToUpper "$1")" val="$2" file="/etc/default/grub"
+	local var="$(UtilToUpper "$1")" val="$2"
+  local file="/etc/default/grub" empty="$4"
 
-  if __GrubHasEtcDefaultVar "${var}" "${file}"; then
-    __GrubEtcDefaultVar "${var}" "${val}" "${file}"
-  else
-    echo "${var}=\"${val}\"" >> "${file}"
-  fi
+  [[ -n "${empty}" ]] || empty="${val}"
+
+  Script "GrubAppendEtcDefaultVar" <<-EOF
+	if $(__GrubHasEtcDefaultVar "${var}" "${file}"); then
+	  $(__GrubEtcDefaultVar "${var}" "${val}" "${file}")
+	else
+	  echo '${var}="${empty}"' >> "${file}"
+	fi
+	EOF
+}
+
+function GrubAppendEtcDefaultVar() {
+  GrubSetEtcDefaultVar "$1" "\2 $2" "$3" "$2"
 }

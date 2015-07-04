@@ -18,6 +18,7 @@ function __Block() {
 	_files=()
 	_fds=()
 	_fds_out=()
+	_mkdir=()
 
 	_block="$(timeout 1 cat -s <&0 || true)"
 
@@ -53,7 +54,7 @@ function __Block() {
 			fn="$(cut -d'>' -f2 <<<"${fn}")"
 		fi
 
-		_mkdir+="$(mkdir -p "$(dirname "${fn}")")"
+		_mkdir+="mkdir -p \"\$(dirname \"${fn}\")\""
 
 		if [[ -n "${_owner}" && -n "${_group}" ]]; then
 			_chown+=("chown -c ${_owner}:${_group} ${fn}")
@@ -63,7 +64,7 @@ function __Block() {
 			_chmod+=("chmod -c ${_mod} ${fn}")
 		fi
 
-		_fds_out+=("${fd}>${fn}")
+		_fds_out+=("${fd}> ${fn}")
 	done
 
 	for fd in ${_fds[@]}; do
