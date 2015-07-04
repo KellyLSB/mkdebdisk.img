@@ -16,7 +16,7 @@ function GrubSetEtcDefaultVar() {
 
   Script "GrubAppendEtcDefaultVar" <<-EOF
 	if $(__GrubHasEtcDefaultVar "${var}" "${file}"); then
-	  $(__GrubEtcDefaultVar "${var}" "${val}" "${file}")
+	  $(__GrubSetEtcDefaultVar "${var}" "${val}" "${file}")
 	else
 	  echo '${var}="${empty}"' >> "${file}"
 	fi
