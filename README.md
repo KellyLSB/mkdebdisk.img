@@ -23,7 +23,9 @@ __There are potentially more dependencies__
 
 ## Usage
 
-RPi2 Example File: http://github.com/KellyLSB/rpi2
+Examples:
+- Raspberry Pi 2: http://github.com/KellyLSB/rpi2
+- Soekris net6501: https://github.com/KellyLSB/rpi2/tree/soekris-net6501
 
 ## License
 
