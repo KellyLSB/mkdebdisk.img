@@ -33,7 +33,7 @@ function SystemdEnableDaemons() {
 }
 
 function SystemdDisableDaemons() {
-	File 'SystemdDisableDaemons' '${CHROOT}/usr/sbin/policy-rc.d' --mod 0666 <<-EOF
+	File 'SystemdDisableDaemons' '${CHROOT}/usr/sbin/policy-rc.d' --mod 'a+x' <<-EOF
 	#!/bin/sh
 	echo "All runlevel operations denied by policy" 1>&2
 	exit 101
