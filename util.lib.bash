@@ -25,7 +25,7 @@ function UtilCountLines() {
 }
 
 function AddFile() {
-	File "AddFile" "$2" <<-EOF
+	File "AddFile" "$2" ${@:3} <<-EOF
   $(cat "$1")
 	EOF
 }
