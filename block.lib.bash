@@ -115,5 +115,5 @@ function Exec() {
 }
 
 function Script() {
-	__Block --name "$1" --exec "bash" ${@:3}
+	__Block --name "$1" --exec "bash" ${@:2}
 }

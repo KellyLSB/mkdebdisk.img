@@ -53,6 +53,7 @@ source "${MKDD_PATH}/apt.lib.bash"
 source "${MKDD_PATH}/chroot.lib.bash"
 source "${MKDD_PATH}/systemd.lib.bash"
 source "${MKDD_PATH}/grub.lib.bash"
+source "${MKDD_PATH}/console.lib.bash"
 
 ## --- ## => Start Building
 
