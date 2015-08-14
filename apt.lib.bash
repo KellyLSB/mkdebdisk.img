@@ -109,7 +109,7 @@ function AptRepoSources() {
 
 	awkDebRepo=(
 		"gsub (\"%\", \" \");"
-		"print \"deb     [arch=${MKDDP_ARCH}] ${debRepo}\" \$0;"
+		"print \"deb	 [arch=${MKDDP_ARCH}] ${debRepo}\" \$0;"
 		"print \"deb-src [arch=${MKDDP_ARCH}] ${debRepo}\" \$0;"
 	)
 

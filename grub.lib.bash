@@ -10,23 +10,23 @@ function __GrubHasEtcDefaultVar() {
 
 function GrubSetEtcDefaultVar() {
 	local var="$(UtilToUpper "$1")" val="$2"
-  local file="/etc/default/grub" empty="$4"
+	local file="/etc/default/grub" empty="$4"
 
-  [[ -n "${empty}" ]] || empty="${val}"
+	[[ -n "${empty}" ]] || empty="${val}"
 
-  Script "GrubAppendEtcDefaultVar" <<-EOF
+	Script "GrubAppendEtcDefaultVar" <<-EOF
 	if $(__GrubHasEtcDefaultVar "${var}" "${file}"); then
-	  $(__GrubSetEtcDefaultVar "${var}" "${val}" "${file}")
+		$(__GrubSetEtcDefaultVar "${var}" "${val}" "${file}")
 	else
-	  echo '${var}="${empty}"' >> "${file}"
+		echo '${var}="${empty}"' >> "${file}"
 	fi
 	EOF
 }
 
 function GrubAppendEtcDefaultVar() {
-  GrubSetEtcDefaultVar "$1" "\2 $2" "$3" "$2"
+	GrubSetEtcDefaultVar "$1" "\2 $2" "$3" "$2"
 }
 
 function GrubUpdate() {
-  Exec "GrubUpdate" "update-grub"
+	Exec "GrubUpdate" "update-grub"
 }
