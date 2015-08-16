@@ -1,5 +1,8 @@
 #!/bin/bash
 
+MKDPP_HOSTNAME="mkdebdisk-img"
+MKDPP_PASSWORD="changeme"
+
 #
 # Build Functions
 #
@@ -46,4 +49,11 @@ function SystemdFirstRun() {
 
 function SystemdRootPassword() {
 	Exec 'SystemdRootPassword' "chpasswd <<<\"root:$1\""
+	MKDDP_PASSWORD="$1"
+}
+
+function SystemdHostname() {
+	File 'SystemdHostname' '${CHROOT}/etc/hostname' <<<"$1"
+	Exec 'SystemdHostname' "sed -i 's/ localhost / $1 localhost /g'"
+	MKDDP_HOSTNAME="$1"
 }
