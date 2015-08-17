@@ -168,6 +168,10 @@ function VMDebootstrapArguments() {
         fi
     done
 
+    if [[ -n "${VMDEBOOTSTRAP_FOREIGN}" ]]; then
+        echo -n "--foreign ${VMDEBOOTSTRAP_FOREIGN} "
+    fi
+
     echo "${VMDEBOOTSTRAP_ARGS[@]}"
 }
 
