@@ -1,8 +1,5 @@
 #!/bin/bash
 
-MKDPP_HOSTNAME="mkdebdisk-img"
-MKDPP_PASSWORD="changeme"
-
 #
 # Build Functions
 #
@@ -36,7 +33,8 @@ function SystemdEnableDaemons() {
 }
 
 function SystemdDisableDaemons() {
-	File 'SystemdDisableDaemons' '${CHROOT}/usr/sbin/policy-rc.d' --mod 'a+x' <<-EOF
+	File 'SystemdDisableDaemons' '${CHROOT}/usr/sbin/policy-rc.d' --mod 'a+x' \
+	<<-EOF
 	#!/bin/sh
 	echo "All runlevel operations denied by policy" 1>&2
 	exit 101
@@ -49,11 +47,12 @@ function SystemdFirstRun() {
 
 function SystemdRootPassword() {
 	Exec 'SystemdRootPassword' "chpasswd <<<\"root:$1\""
-	MKDDP_PASSWORD="$1"
+	VMDebootstrapRootPassword "$1" &>/dev/null
 }
 
 function SystemdHostname() {
 	File 'SystemdHostname' '${CHROOT}/etc/hostname' <<<"$1"
-	Exec 'SystemdHostname' "sed -i 's/ localhost / $1 localhost /g'"
-	MKDDP_HOSTNAME="$1"
+	Exec 'SystemdHostname' \
+		"sed -Ei 's/(\s+)localhost(\s+)/\1$1 localhost\2/g' /etc/hosts"
+	VMDebootstrapHostname "$1" &>/dev/null
 }

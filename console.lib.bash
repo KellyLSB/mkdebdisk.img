@@ -13,6 +13,15 @@ CONSOLE_LINUX_CMDLINE=()
 CONSOLE_SYSTEMD_GETTY=()
 
 #
+# Helper Functions
+#
+
+# Returns the first serial console for the getty
+function ConsoleSerialCommand() {
+	"${CONSOLE_SYSTEMD_GETTY[0]}"
+}
+
+#
 # Build Functions
 #
 
@@ -42,6 +51,10 @@ function ConsoleAdd() {
 
 	# Tell linux to use a Serial Console at Boot.
 	CONSOLE_LINUX_CMDLINE+=("${device},${baud}${parity}${bits}${flow}")
+
+	# Add the serial console to the VMDebootstrapArguments
+	VMDebootstrapAddArgument "serial-console-command" \
+	 	"${systemd_serial_getty_console[@]}"
 }
 
 function ConsoleSystemdGetty() {
@@ -59,9 +72,4 @@ function ConsoleLinuxCmdline() {
 			"GRUB_CMDLINE_LINUX" \
 			"console=${device}"
 	done
-}
-
-# Returns the first serial console for the getty
-function ConsoleSerialCommand() {
-	echo "${CONSOLE_SYSTEMD_GETTY[0]}"
 }

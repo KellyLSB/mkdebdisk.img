@@ -1,7 +1,7 @@
 #!/bin/bash
 
 APT_MIRRORS=()
-APT_NOPROXY=()
+APT_PROXY_BYPASS=()
 APT_PROXY=""
 APT_ARGS=("--force-yes" "-y")
 APT_KEYF=()
@@ -27,6 +27,59 @@ function __AptProxy() {
 }
 
 #
+# Helper Functions
+#
+
+function AptPrimaryMirror() {
+	[[ ${#APT_MIRRORS[@]} -lt 1 ]] && return
+	awk -F'%' '{print $1}' <<<"${APT_MIRRORS[0]}"
+}
+
+function AptPrimaryMirrorDistribution() {
+	[[ ${#APT_MIRRORS[@]} -lt 1 ]] && return
+	awk -F'%' '{print $2}' <<<"${APT_MIRRORS[0]}"
+}
+
+function AptProxyMirror() {
+	local mirror
+	mirror="$1"
+
+	[[ -z "${mirror}" ]] && \
+		mirror="$(AptPrimaryMirror)"
+
+	AptProxyPrefix "${mirror}"
+}
+
+function AptProxyPrefix() {
+	[[ ${APT_PROXY_DISABLED} -lt 1 ]] && \
+		echo -n "http://${APT_PROXY}" || \
+		echo -n "http://"
+
+	[[ -n "$1" ]] && echo "$1"
+}
+
+function AptProxy() {
+	local argument setProxy=0
+
+	for argument in $@; do
+		case "$argument" in
+			disable) APT_PROXY_DISABLED=1;;
+			enable)  APT_PROXY_DISABLED=0;;
+			*) if [[ -n "${argument}" && ${setProxy} -lt 1 ]]; then
+				APT_PROXY="${argument}"
+				setProxy=1
+			fi;;
+		esac
+	done
+
+	if [[ -z "${APT_PROXY}" ]]; then
+		echo "There is no available local Apt Proxy configured or detected." 1>&2
+	fi
+
+	echo "${APT_PROXY}"
+}
+
+#
 # Build Config Functions
 #
 
@@ -35,7 +88,7 @@ function AptRepo() {
 }
 
 function AptNoProxy() {
-	APT_NOPROXY+=($@)
+	APT_PROXY_BYPASS+=($@)
 }
 
 function AptKey() {
@@ -67,7 +120,7 @@ function AptProxyConf() {
 	if [[ ${proxyDefined} -eq 1 ]]; then
 		File "AptCache" "${proxyConf}" <<-EOF
 		Acquire::HTTP::Proxy "${proxyHost}:${proxyPort}";
-		$(xargs -n1 <<<"${APT_NOPROXY[@]}" | awk "{ ${awkProxyHost} }")
+		$(xargs -n1 <<<"${APT_PROXY_BYPASS[@]}" | awk "{ ${awkProxyHost} }")
 		EOF
 
 		return 0
@@ -76,13 +129,13 @@ function AptProxyConf() {
 	Script <<-EOF
 	if dpkg -l | grep apt-cacher-ng &>/dev/null; then
 		echo 'Acquire::HTTP::Proxy "http://127.0.0.1:3142";' > ${proxyConf}
-		xargs -n1 <<<"${APT_NOPROXY[@]}" | awk "{ ${awkProxyHost} }" >> ${proxyConf}
+		xargs -n1 <<<"${APT_PROXY_BYPASS[@]}" | awk "{ ${awkProxyHost} }" >> ${proxyConf}
 	elif dpkg -l | grep apt-p2p &>/dev/null; then
 		echo 'Acquire::HTTP::Proxy "http://127.0.0.1:9977";' > ${proxyConf}
-		xargs -n1 <<<"${APT_NOPROXY[@]}" | awk "{ ${awkProxyHost} }" >> ${proxyConf}
+		xargs -n1 <<<"${APT_PROXY_BYPASS[@]}" | awk "{ ${awkProxyHost} }" >> ${proxyConf}
 	elif dpkg -l | grep apt-cacher &>/dev/null; then
 		echo 'Acquire::HTTP::Proxy "http://127.0.0.1:9999";' > ${proxyConf}
-		xargs -n1 <<<"${APT_NOPROXY[@]}" | awk "{ ${awkProxyHost} }" >> ${proxyConf}
+		xargs -n1 <<<"${APT_PROXY_BYPASS[@]}" | awk "{ ${awkProxyHost} }" >> ${proxyConf}
 	fi
 	EOF
 }
@@ -98,19 +151,15 @@ function AptKeysImport() {
 }
 
 function AptRepoSources() {
-	local debRepo awkDebRepo
-
+	[[ "$1" == 'no-proxy' ]] && APT_PROXY_DISABLED=1
 	[[ -n "${APT_MIRRORS[@]}" ]] || return
 
-	if [[ "$1" == 'no-proxy' ]];
-		then debRepo="http://"
-		else debRepo="http://${APT_PROXY}"
-	fi
+	local debRepo awkDebRepo
 
 	awkDebRepo=(
 		"gsub (\"%\", \" \");"
-		"print \"deb	 [arch=${MKDDP_ARCH}] ${debRepo}\" \$0;"
-		"print \"deb-src [arch=${MKDDP_ARCH}] ${debRepo}\" \$0;"
+		"print \"deb	 [arch=${VMDEBOOTSTRAP_ARCH}] $(AptProxyPrefix)\" \$0;"
+		"print \"deb-src [arch=${VMDEBOOTSTRAP_ARCH}] $(AptProxyPrefix)\" \$0;"
 	)
 
 	File "AptRepos" "/etc/apt/sources.list" <<-EOF

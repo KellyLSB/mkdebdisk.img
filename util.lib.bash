@@ -24,6 +24,14 @@ function UtilCountLines() {
 	wc -l <<<"$1"
 }
 
+function UtilBasenameNoExt() {
+	echo -n "$(basename $1 | awk -F'.' '{ $NF=""; print $0 }'| xargs)"
+}
+
+#
+# Build Functions
+#
+
 function AddFile() {
 	File "AddFile" "$2" ${@:3} <<-EOF
 	$(cat "$1")
